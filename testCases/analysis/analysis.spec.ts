@@ -2,6 +2,7 @@ import { test } from '@playwright/test'
 import { AuthActions } from '../../helpers/authActions'
 import { AnalysisAction } from '../../helpers/analysisAction'
 import { Author, Module } from '../../fixtures/tags'
+import { LOGIN_PASSWORD, LOGIN_USER } from '../../fixtures/testDatas'
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5004/'
 
@@ -14,7 +15,7 @@ test.describe('Analysis Flow', () => {
         analysis = new AnalysisAction(page)
 
         // login before analysis
-        await auth.login('admin', '0000', BASE_URL)
+        await auth.login(LOGIN_USER, LOGIN_PASSWORD, BASE_URL)
         await auth.verifyDashboard()
     })
 
@@ -45,5 +46,6 @@ test.describe('Analysis Flow', () => {
         })
 
     })
+    
 
 })
