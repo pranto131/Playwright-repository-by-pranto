@@ -1017,7 +1017,7 @@ These are **higher than usual** because:
 ---
 
 ## Adding New Tests
-
+Test-case find under /qa-doc/testcases.md
 ### Step 1: Understand the Test Structure
 
 **Test Organization:**
