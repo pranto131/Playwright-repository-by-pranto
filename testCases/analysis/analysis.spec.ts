@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { AuthActions } from '../../helpers/authActions'
 import { AnalysisAction } from '../../helpers/analysisAction'
 import { Author, Module } from '../../fixtures/tags'
@@ -29,23 +29,49 @@ test.describe('Analysis Flow', () => {
         },
         async ({ page }) => {
 
-        const analysis = new AnalysisAction(page)
+            const analysis = new AnalysisAction(page)
 
-        await test.step('Uploads transcript file and analyzes file successfully and got stored under "Uploaded Files" section.', async () => {
+            await test.step('Uploads transcript file and analyzes file successfully and got stored under "Uploaded Files" section.', async () => {
 
-            await analysis.uploadTranscript('transcript-file.txt')
+                await analysis.uploadTranscript('transcript-file.txt')
 
-            await analysis.chooseProject()
+                await analysis.chooseProject()
 
-            await analysis.chooseDestination()
+                await analysis.chooseDestination()
 
-            await analysis.clickAnalyzeNow()
+                await analysis.clickAnalyzeNow()
 
-            await analysis.verifyFileUnderUploadedFiles('transcript-file.txt')
+                await analysis.verifyFileUnderUploadedFiles('transcript-file.txt')
+
+            })
 
         })
 
-    })
-    
+    test(
+        'TC-02 Verify "Analyze now" button is disabled when no file is uploaded',
+        {
+            tag: [
+                Author.PRANTO,
+                Module.ANALYSIS_FLOW,
+            ],
+        },
+        async ({ page }) => {
 
+            await test.step(
+                'Verify Analyze Now button remains disabled before uploading file',
+                async () => {
+
+                    const analyzeBtn = page.getByRole('button', {
+                        name: /analyze now/i
+                    })
+
+                    await expect(analyzeBtn).toBeDisabled()
+
+                    await expect(
+                        page.getByText(/complete all steps above/i)
+                    ).toBeVisible()
+                }
+            )
+        }
+    )
 })
