@@ -1,0 +1,65 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  repository_dispatch:
+    types: [run-playwright-tests]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: http://localhost:5004
+      LOGIN_USER: admin
+      LOGIN_PASSWORD: "0000"
+      CI: true
+
+    steps:
+      # 1. Checkout the Playwright repo (root of workspace)
+      - name: Checkout Playwright tests
+        uses: actions/checkout@v4
+
+      # 2. Checkout the frontend into ./frontend
+      #    (matches webServer.cwd in playwright.config.ts)
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+        with:
+          repository: pranto131/qa-test-nifty-it-solution
+          token: ${{ secrets.nifty_pranto_gaction }}
+          path: frontend
+
+      # 3. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 4. Install frontend dependencies
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # 5. Install Playwright test dependencies
+      - name: Install Playwright dependencies
+        run: npm ci
+
+      # 6. Install Playwright browsers
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # 7. Run tests
+      #    webServer in playwright.config.ts auto-starts the frontend
+      #    via "npm run dev" in ./frontend and waits for port 5004
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+
+      # 8. Upload report on failure
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
